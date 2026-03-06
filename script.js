@@ -1,7 +1,7 @@
 ﻿let scene, camera, renderer, particles, constellations = [], clock, circleTexture, cameraTarget;
 let isSceneFrozen = false;
 let hasStarted = false;
-let terminalOverlay, terminalText, terminalBody;
+let terminalOverlay, terminalLayout, terminalText, terminalBody, profileText;
 let introOverlay, aboutButton, countdownDisplay;
 let scrollHideTimer;
 
@@ -23,8 +23,10 @@ function init() {
   circleTexture = createCircleTexture();
   cameraTarget = new THREE.Vector3(0, 0, 0);
   terminalOverlay = document.getElementById("terminal-overlay");
+  terminalLayout = document.getElementById("terminal-layout");
   terminalText = document.getElementById("terminal-text");
   terminalBody = document.getElementById("terminal-body");
+  profileText = document.getElementById("profile-text");
   introOverlay = document.getElementById("intro-overlay");
   aboutButton = document.getElementById("about-btn");
   countdownDisplay = document.getElementById("countdown-display");
@@ -255,6 +257,12 @@ function zoomToConstellation(name) {
 
 function freezeSceneAndType() {
   isSceneFrozen = true;
+  if (terminalLayout) {
+    terminalLayout.classList.remove("layout-split");
+  }
+  if (profileText) {
+    profileText.textContent = "";
+  }
 
   gsap.to(renderer.domElement, {
     opacity: 0.35,
@@ -318,8 +326,10 @@ function runDownloadEffect(durationMs, onComplete) {
 }
 
 function showFullProfile() {
-  const profile = `VŨ CHÍ CÔNG
-Lập trình viên .NET
+  const profileSummary = `VŨ CHÍ CÔNG
+SOFTWARE ENGINEER`;
+
+  const profileDetails = `Lập trình viên .NET
 12-08-1999
 0966.238.334
 interact.congvu@gmail.com
@@ -399,7 +409,19 @@ Một số dự án nổi bật:
 - Vị trí: Lập trình viên Backend - Frontend
 - Công nghệ: .NET, Oracle, WebSocket, Kendo React
 - Công việc chính: Viết API kết nối nhiều hệ thống, xử lý truy vấn dữ liệu, dựng giao diện, viết tiến trình chạy ngầm theo yêu cầu nghiệp vụ`;
-  terminalText.textContent = profile;
+  if (profileText) {
+    profileText.textContent = profileSummary;
+  }
+  terminalText.textContent = profileDetails;
+  revealSplitLayout();
+}
+
+function revealSplitLayout() {
+  if (!terminalLayout) return;
+  // Delay a bit so the user sees the left CMD "spawn" over the main CMD first
+  gsap.delayedCall(0.15, () => {
+    terminalLayout.classList.add("layout-split");
+  });
 }
 
 function setupTerminalScrollIndicator() {

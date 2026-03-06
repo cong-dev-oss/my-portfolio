@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Big Bang & 12 Constellations in Universe</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -15,10 +16,19 @@
   </div>
 
   <div id="terminal-overlay">
-    <div id="terminal-window">
-      <div id="terminal-titlebar">Command Prompt</div>
-      <div id="terminal-body">
-        <div id="terminal-text"></div>
+    <div id="terminal-layout">
+      <div class="terminal-window terminal-window-left">
+        <div class="terminal-titlebar">Command Prompt</div>
+        <div class="terminal-body">
+          <img id="profile-avatar" src="img/Cong-min.jpg" alt="Ảnh đại diện">
+          <div id="profile-text"></div>
+        </div>
+      </div>
+      <div class="terminal-window terminal-window-right">
+        <div class="terminal-titlebar">Command Prompt</div>
+        <div id="terminal-body" class="terminal-body">
+          <div id="terminal-text"></div>
+        </div>
       </div>
     </div>
   </div>
