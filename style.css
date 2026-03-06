@@ -175,11 +175,30 @@ canvas { display: block; position: relative; z-index: 2; }
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
-#profile-avatar {
+.avatar-scan {
+  position: relative;
   width: 100%;
   max-width: 150px;
-  display: block;
   margin: 0 auto 8px;
+  overflow: hidden;
+}
+.avatar-scan::after {
+  content: "";
+  position: absolute;
+  top: -45%;
+  left: -10%;
+  width: 120%;
+  height: 34%;
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0), rgba(255, 215, 0, 0.55), rgba(255, 215, 0, 0));
+  mix-blend-mode: screen;
+  animation: avatarScan 5.6s ease-in-out infinite;
+  pointer-events: none;
+}
+#profile-avatar {
+  width: 100%;
+  max-width: none;
+  display: block;
+  margin: 0;
   border: 1px solid #2f2f2f;
 }
 #profile-text {
@@ -197,6 +216,11 @@ canvas { display: block; position: relative; z-index: 2; }
 @keyframes blink {
   0%, 49% { opacity: 1; }
   50%, 100% { opacity: 0; }
+}
+@keyframes avatarScan {
+  0%, 55% { top: -45%; opacity: 0; }
+  62% { opacity: 0.48; }
+  100% { top: 120%; opacity: 0; }
 }
 @media (max-width: 900px) {
   #terminal-overlay {
@@ -227,42 +251,60 @@ canvas { display: block; position: relative; z-index: 2; }
     height: 90dvh;
   }
   .terminal-window-left {
-    width: min(62vw, 220px);
-    height: 220px;
+    width: 100%;
+    height: auto;
   }
   #terminal-layout.layout-split .terminal-window-left {
-    top: 0;
-    left: 0;
+    position: relative;
+    top: auto;
+    left: auto;
     width: 100%;
-    height: 220px;
+    height: auto;
+    transform: none;
   }
   #terminal-layout.layout-split .terminal-window-right {
-    top: 228px;
-    left: 0;
+    position: relative;
+    top: auto;
+    left: auto;
     width: 100%;
-    height: calc(100% - 228px);
+    height: auto;
+    inset: auto;
+    flex: 1;
   }
-  #profile-avatar {
-    max-width: 120px;
+  #terminal-layout.layout-split {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .terminal-window-left .terminal-body {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+  .avatar-scan {
+    width: 88px;
+    max-width: 88px;
+    margin: 0;
+    flex: 0 0 88px;
   }
   #profile-text {
     font-size: clamp(13px, 3.9vw, 15px);
     line-height: 1.35;
+    text-align: left;
+    align-self: flex-end;
+    margin-bottom: 2px;
   }
 }
 @media (max-width: 480px) {
   #terminal-layout {
     height: 92dvh;
   }
-  #terminal-layout.layout-split .terminal-window-left {
-    height: 200px;
-  }
-  #terminal-layout.layout-split .terminal-window-right {
-    top: 208px;
-    height: calc(100% - 208px);
-  }
-  #profile-avatar {
-    max-width: 108px;
+  .avatar-scan {
+    width: 72px;
+    max-width: 72px;
+    flex-basis: 72px;
   }
   .terminal-titlebar,
   #terminal-titlebar {
@@ -275,6 +317,7 @@ canvas { display: block; position: relative; z-index: 2; }
   }
   #profile-text {
     font-size: 14px;
+    text-align: left;
   }
 }
 
