@@ -386,32 +386,28 @@ Một số dự án nổi bật:
 - Vị trí: Lập trình viên Backend - Frontend
 - Công nghệ: .NET, Oracle, WebSocket, Kendo React
 - Công việc chính: Viết API kết nối nhiều hệ thống, xử lý truy vấn dữ liệu, dựng giao diện, viết tiến trình chạy ngầm theo yêu cầu nghiệp vụ`;
-  typeProfileWithLoadingBreaks(profile, 3, 4);
+  typeProfileWithTwoLoadingPauses(profile, 4);
 }
 
-function typeProfileWithLoadingBreaks(content, blockSize, speedMs) {
-  const blocks = content.split("\n\n");
-  let rendered = "";
+function typeProfileWithTwoLoadingPauses(content, speedMs) {
+  const total = content.length;
+  const cut1 = Math.floor(total / 3);
+  const cut2 = Math.floor((total * 2) / 3);
+  const part1 = content.slice(0, cut1);
+  const part2 = content.slice(cut1, cut2);
+  const part3 = content.slice(cut2);
 
-  function typeNextBlock(index) {
-    if (index >= blocks.length) {
-      terminalText.textContent = rendered;
-      return;
-    }
-
-    const blockPrefix = rendered ? "\n\n" : "";
-    const blockText = `${blockPrefix}${blocks[index]}`;
-    typeAppendText(blockText, speedMs, (updatedText) => {
-      rendered = updatedText;
-      if (index < blocks.length - 1) {
-        playLoadingBetweenBlocks(rendered, () => typeNextBlock(index + 1));
-      } else {
-        typeNextBlock(index + 1);
-      }
-    }, rendered);
-  }
-
-  typeNextBlock(0);
+  typeAppendText(part1, speedMs, (text1) => {
+    playLoadingBetweenBlocks(text1, () => {
+      typeAppendText(part2, speedMs, (text2) => {
+        playLoadingBetweenBlocks(text2, () => {
+          typeAppendText(part3, speedMs, (text3) => {
+            terminalText.textContent = text3;
+          }, text2);
+        });
+      }, text1);
+    });
+  }, "");
 }
 
 function typeAppendText(textToAppend, speedMs, onComplete, baseText) {
