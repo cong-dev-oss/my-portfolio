@@ -122,7 +122,7 @@ function createConstellations() {
     constellations.push({ stars, lines, center, name: zodiacNames[i] });
   }
 
-  gsap.delayedCall(1, () => zoomToConstellation("Sư Tử"));
+  gsap.delayedCall(0.35, () => zoomToConstellation("Sư Tử"));
 }
 
 function animate() {
@@ -130,15 +130,15 @@ function animate() {
   clock.getElapsedTime();
 
   if (hasStarted && !isSceneFrozen) {
-    particles.rotation.y += 0.001;
-    particles.rotation.x += 0.0005;
+    particles.rotation.y += 0.003;
+    particles.rotation.x += 0.0015;
 
     constellations.forEach((c, i) => {
-      c.stars.rotation.y += 0.0005 + i * 0.00005;
-      c.lines.rotation.y += 0.0005 + i * 0.00005;
+      c.stars.rotation.y += 0.0015 + i * 0.00012;
+      c.lines.rotation.y += 0.0015 + i * 0.00012;
     });
 
-    scene.rotation.y += 0.0003;
+    scene.rotation.y += 0.001;
   }
 
   camera.lookAt(cameraTarget);
@@ -189,8 +189,8 @@ function runCountdown(onComplete) {
 function startBigBangSequence() {
   hasStarted = true;
   gsap.timeline()
-    .to(particles.scale, { x: 200, y: 200, z: 200, duration: 3, ease: "power2.out" })
-    .to(particles.material.color, { r: 1, g: 0.8, b: 0.2, duration: 2 })
+    .to(particles.scale, { x: 200, y: 200, z: 200, duration: 1.6, ease: "power2.out" })
+    .to(particles.material.color, { r: 1, g: 0.8, b: 0.2, duration: 0.9 })
     .call(() => {
       createConstellations();
     });
@@ -332,7 +332,9 @@ Technical Skills
 - .NET Ecosystem: ASP.NET Core, MVC, Entity Framework, LINQ, WebSocket, Repository Pattern
 - Java/Spring Boot: Spring Boot, JPA, Maven, REST API, Hibernate, Circuit Breaker Pattern
 - DevOps & Cloud: AWS EC2, S3, Docker, CI/CD (GitHub Actions), Docker Compose
-- Kiến trúc & Bảo mật: Microservices, OAuth2, JWT, Design Patterns, Clean Code
+- Kiến trúc & Bảo mật: Microservices, OAuth2, JWT, Design Patterns, DDD Pattern, CQRS, Clean Code
+- Monitoring & Logging: Seq, Prometheus, Grafana
+- Payment Integration: Stripe, PayPal, SePay
 
 Database Management Systems
 - MySQL, MSSQL, Oracle
@@ -349,6 +351,9 @@ Version Control
 Soft Skills
 - Estimate Task (Jira)
 - Làm việc nhóm (Microsoft Teams)
+- Quản lý công việc với Jira
+- Setup CI/CD với Jenkins
+- Quản lý source code với GitLab
 
 Others
 - Phân tích thiết kế database
@@ -386,76 +391,7 @@ Một số dự án nổi bật:
 - Vị trí: Lập trình viên Backend - Frontend
 - Công nghệ: .NET, Oracle, WebSocket, Kendo React
 - Công việc chính: Viết API kết nối nhiều hệ thống, xử lý truy vấn dữ liệu, dựng giao diện, viết tiến trình chạy ngầm theo yêu cầu nghiệp vụ`;
-  typeProfileWithTwoLoadingPauses(profile, 4);
-}
-
-function typeProfileWithTwoLoadingPauses(content, speedMs) {
-  const total = content.length;
-  const cut1 = Math.floor(total / 3);
-  const cut2 = Math.floor((total * 2) / 3);
-  const part1 = content.slice(0, cut1);
-  const part2 = content.slice(cut1, cut2);
-  const part3 = content.slice(cut2);
-
-  typeAppendText(part1, speedMs, (text1) => {
-    playLoadingBetweenBlocks(text1, () => {
-      typeAppendText(part2, speedMs, (text2) => {
-        playLoadingBetweenBlocks(text2, () => {
-          typeAppendText(part3, speedMs, (text3) => {
-            terminalText.textContent = text3;
-          }, text2);
-        });
-      }, text1);
-    });
-  }, "");
-}
-
-function typeAppendText(textToAppend, speedMs, onComplete, baseText) {
-  let index = 0;
-
-  const timer = setInterval(() => {
-    index += 1;
-    const typed = `${baseText}${textToAppend.slice(0, index)}`;
-    renderWithCursor(typed);
-    scrollTerminalToBottom();
-
-    if (index >= textToAppend.length) {
-      clearInterval(timer);
-      if (onComplete) onComplete(typed);
-    }
-  }, speedMs);
-}
-
-function playLoadingBetweenBlocks(baseText, onComplete) {
-  const loadingLabel = "\n\nLoading next section";
-  const frames = [" .  ", " .. ", " ..."];
-  let frame = 0;
-
-  const timer = setInterval(() => {
-    renderWithCursor(`${baseText}${loadingLabel}${frames[frame % frames.length]}`);
-    scrollTerminalToBottom();
-    frame += 1;
-
-    if (frame >= 6) {
-      clearInterval(timer);
-      if (onComplete) onComplete();
-    }
-  }, 120);
-}
-
-function renderWithCursor(text) {
-  terminalText.textContent = "";
-  terminalText.appendChild(document.createTextNode(text));
-  const cursor = document.createElement("span");
-  cursor.className = "cursor";
-  cursor.textContent = "_";
-  terminalText.appendChild(cursor);
-}
-
-function scrollTerminalToBottom() {
-  if (terminalBody) {
-    terminalBody.scrollTop = terminalBody.scrollHeight;
-  }
+  terminalText.textContent = profile;
 }
 
 function setupTerminalScrollIndicator() {
