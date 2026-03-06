@@ -148,19 +148,26 @@ function animate() {
 function setupIntroSequence() {
   if (!aboutButton || !countdownDisplay || !introOverlay) return;
 
-  aboutButton.addEventListener("click", () => {
-    aboutButton.disabled = true;
-    runCountdown(() => {
-      gsap.to(introOverlay, {
-        opacity: 0,
-        duration: 0.55,
-        ease: "power2.out",
-        onComplete: () => {
-          introOverlay.style.display = "none";
-          startBigBangSequence();
-        }
-      });
+  // keep the button present but disable it; no click required
+  aboutButton.disabled = true;
+  aboutButton.style.pointerEvents = "none";
+
+  // begin the countdown immediately
+  runCountdown(() => {
+    gsap.to(introOverlay, {
+      opacity: 0,
+      duration: 0.55,
+      ease: "power2.out",
+      onComplete: () => {
+        introOverlay.style.display = "none";
+        startBigBangSequence();
+      }
     });
+  });
+
+  // ensure any clicks are ignored
+  aboutButton.addEventListener("click", (e) => {
+    e.preventDefault();
   });
 }
 
@@ -261,7 +268,8 @@ function freezeSceneAndType() {
     duration: 1.1,
     ease: "power2.out",
     onComplete: () => {
-      typeCommandText("Vũ Chí Công", 140, () => {
+      // auto-type date string instead of the name
+      typeCommandText("12_08_1999", 140, () => {
         runDownloadEffect(1500, showFullProfile);
       });
     }
