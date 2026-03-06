@@ -1,6 +1,8 @@
 ﻿let scene, camera, renderer, particles, constellations = [], clock, circleTexture, cameraTarget;
 let isSceneFrozen = false;
+let hasStarted = false;
 let terminalOverlay, terminalText, terminalBody;
+let introOverlay, aboutButton, countdownDisplay;
 let scrollHideTimer;
 
 init();
@@ -23,7 +25,11 @@ function init() {
   terminalOverlay = document.getElementById("terminal-overlay");
   terminalText = document.getElementById("terminal-text");
   terminalBody = document.getElementById("terminal-body");
+  introOverlay = document.getElementById("intro-overlay");
+  aboutButton = document.getElementById("about-btn");
+  countdownDisplay = document.getElementById("countdown-display");
   setupTerminalScrollIndicator();
+  setupIntroSequence();
 
   const particleCount = 20000;
   const positions = new Float32Array(particleCount * 3);
@@ -53,13 +59,6 @@ function init() {
   const light = new THREE.PointLight(0xffffff, 2);
   light.position.set(200, 200, 300);
   scene.add(light);
-
-  gsap.timeline({ delay: 2 })
-    .to(particles.scale, { x: 200, y: 200, z: 200, duration: 3, ease: "power2.out" })
-    .to(particles.material.color, { r: 1, g: 0.8, b: 0.2, duration: 2 })
-    .call(() => {
-      createConstellations();
-    });
 
   window.addEventListener("resize", onWindowResize, false);
 }
@@ -130,7 +129,7 @@ function animate() {
   requestAnimationFrame(animate);
   clock.getElapsedTime();
 
-  if (!isSceneFrozen) {
+  if (hasStarted && !isSceneFrozen) {
     particles.rotation.y += 0.001;
     particles.rotation.x += 0.0005;
 
@@ -144,6 +143,57 @@ function animate() {
 
   camera.lookAt(cameraTarget);
   renderer.render(scene, camera);
+}
+
+function setupIntroSequence() {
+  if (!aboutButton || !countdownDisplay || !introOverlay) return;
+
+  aboutButton.addEventListener("click", () => {
+    aboutButton.disabled = true;
+    runCountdown(() => {
+      gsap.to(introOverlay, {
+        opacity: 0,
+        duration: 0.55,
+        ease: "power2.out",
+        onComplete: () => {
+          introOverlay.style.display = "none";
+          startBigBangSequence();
+        }
+      });
+    });
+  });
+}
+
+function runCountdown(onComplete) {
+  const steps = ["3", "2", "1", "IGNITION"];
+  const countdownTimeline = gsap.timeline({ onComplete });
+
+  steps.forEach((value, index) => {
+    countdownTimeline.call(() => {
+      countdownDisplay.textContent = value;
+    });
+    countdownTimeline.fromTo(
+      countdownDisplay,
+      { scale: 0.4, opacity: 0 },
+      { scale: 1.2, opacity: 1, duration: 0.33, ease: "back.out(2)" }
+    );
+    countdownTimeline.to(countdownDisplay, {
+      scale: index === steps.length - 1 ? 1.45 : 1,
+      opacity: 0,
+      duration: 0.25,
+      ease: "power1.in"
+    });
+  });
+}
+
+function startBigBangSequence() {
+  hasStarted = true;
+  gsap.timeline()
+    .to(particles.scale, { x: 200, y: 200, z: 200, duration: 3, ease: "power2.out" })
+    .to(particles.material.color, { r: 1, g: 0.8, b: 0.2, duration: 2 })
+    .call(() => {
+      createConstellations();
+    });
 }
 
 function onWindowResize() {
@@ -336,8 +386,80 @@ Một số dự án nổi bật:
 - Vị trí: Lập trình viên Backend - Frontend
 - Công nghệ: .NET, Oracle, WebSocket, Kendo React
 - Công việc chính: Viết API kết nối nhiều hệ thống, xử lý truy vấn dữ liệu, dựng giao diện, viết tiến trình chạy ngầm theo yêu cầu nghiệp vụ`;
+  typeProfileWithLoadingBreaks(profile, 3, 4);
+}
 
-  terminalText.textContent = profile;
+function typeProfileWithLoadingBreaks(content, blockSize, speedMs) {
+  const blocks = content.split("\n\n");
+  let rendered = "";
+
+  function typeNextBlock(index) {
+    if (index >= blocks.length) {
+      terminalText.textContent = rendered;
+      return;
+    }
+
+    const blockPrefix = rendered ? "\n\n" : "";
+    const blockText = `${blockPrefix}${blocks[index]}`;
+    typeAppendText(blockText, speedMs, (updatedText) => {
+      rendered = updatedText;
+      if (index < blocks.length - 1) {
+        playLoadingBetweenBlocks(rendered, () => typeNextBlock(index + 1));
+      } else {
+        typeNextBlock(index + 1);
+      }
+    }, rendered);
+  }
+
+  typeNextBlock(0);
+}
+
+function typeAppendText(textToAppend, speedMs, onComplete, baseText) {
+  let index = 0;
+
+  const timer = setInterval(() => {
+    index += 1;
+    const typed = `${baseText}${textToAppend.slice(0, index)}`;
+    renderWithCursor(typed);
+    scrollTerminalToBottom();
+
+    if (index >= textToAppend.length) {
+      clearInterval(timer);
+      if (onComplete) onComplete(typed);
+    }
+  }, speedMs);
+}
+
+function playLoadingBetweenBlocks(baseText, onComplete) {
+  const loadingLabel = "\n\nLoading next section";
+  const frames = [" .  ", " .. ", " ..."];
+  let frame = 0;
+
+  const timer = setInterval(() => {
+    renderWithCursor(`${baseText}${loadingLabel}${frames[frame % frames.length]}`);
+    scrollTerminalToBottom();
+    frame += 1;
+
+    if (frame >= 6) {
+      clearInterval(timer);
+      if (onComplete) onComplete();
+    }
+  }, 120);
+}
+
+function renderWithCursor(text) {
+  terminalText.textContent = "";
+  terminalText.appendChild(document.createTextNode(text));
+  const cursor = document.createElement("span");
+  cursor.className = "cursor";
+  cursor.textContent = "_";
+  terminalText.appendChild(cursor);
+}
+
+function scrollTerminalToBottom() {
+  if (terminalBody) {
+    terminalBody.scrollTop = terminalBody.scrollHeight;
+  }
 }
 
 function setupTerminalScrollIndicator() {
